@@ -1,0 +1,5 @@
+To compile the last toolchain just do:
+
+$ git branch 2.6 origin/2.6
+$ git checkout 2.6
+$ make
