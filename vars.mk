@@ -3,7 +3,7 @@
 #
 
 HOST = $(shell echo $$MACHTYPE | sed "s/$$(echo $$MACHTYPE | cut -d- -f2)/cross/")
-TARGET = arm-unknown-linux-gnu
+TARGET = arm-crux-linux-gnueabi
 
 PWD  = $(shell pwd)
 CLFS = $(PWD)/clfs

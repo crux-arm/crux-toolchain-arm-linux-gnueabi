@@ -116,7 +116,7 @@ $(CLFS)/usr/include/libiberty.h: $(WORK)/build-binutils
 		AR=ar AS=as \
 		$(WORK)/binutils-$(BINUTILS_VERSION)/configure --prefix=$(CROSSTOOLS) \
 		--host=$(HOST) --target=$(TARGET) --with-sysroot=$(CLFS) \
-		--disable-nls --enable-shared --disable-multilib && \
+		--disable-nls --enable-shared --disable-multilib --nfp && \
 		make configure-host && make && make install || exit 1
 	cp -va $(WORK)/binutils-$(BINUTILS_VERSION)/include/libiberty.h $(CLFS)/usr/include
 	touch $(CLFS)/usr/include/libiberty.h
@@ -148,8 +148,9 @@ $(CROSSTOOLS)/lib/gcc: $(WORK)/build-gcc-static $(WORK)/gcc-$(GCC_VERSION)
 		AR=ar LDFLAGS="-Wl,-rpath,$(CROSSTOOLS)/lib" \
 		$(WORK)/gcc-$(GCC_VERSION)/configure --prefix=$(CROSSTOOLS) \
 		--build=$(HOST) --host=$(HOST) --target=$(TARGET) \
-		--disable-multilib --with-sysroot=$(CLFS) --disable-nls \
-		--without-headers --with-newlib --disable-decimal-float \
+		--disable-multilib --disable-nls \
+		--without-headers --enable-__cxa_atexit --enable-symvers=gnu --disable-decimal-float \
+		--nfp --without-fp --with-softfloat-support=internal \
 		--disable-libgomp --disable-libmudflap --disable-libssp \
 		--with-mpfr=$(CROSSTOOLS) --with-gmp=$(CROSSTOOLS) \
 		--disable-shared --disable-threads --enable-languages=c && \
@@ -196,8 +197,8 @@ $(CLFS)/usr/lib/libc.so: $(WORK)/build-glibc $(WORK)/glibc-$(GLIBC_VERSION)
 		RANLIB="$(TARGET)-ranlib" \
 		$(WORK)/glibc-$(GLIBC_VERSION)/configure --prefix=/usr \
 		--libexecdir=/usr/lib/glibc --host=$(TARGET) --build=$(HOST) \
-		--disable-profile --enable-addons --with-tls --enable-kernel=2.6.0 \
-		--with-__thread --with-binutils=$(CROSSTOOLS)/bin \
+		--disable-profile --enable-add-ons --with-tls --enable-kernel=2.6.0 \
+		--with-__thread --with-binutils=$(CROSSTOOLS)/bin --with-fp=no \
 		--with-headers=$(CLFS)/usr/include --cache-file=config.cache && \
 		make && make install || exit 1
 	touch $(CLFS)/usr/lib/libc.so
@@ -223,6 +224,7 @@ $(CLFS)/lib/gcc: $(WORK)/build-gcc-final $(WORK)/gcc-$(GCC_VERSION)
 		AR=ar LDFLAGS="-Wl,-rpath,$(CROSSTOOLS)/lib" \
 		$(WORK)/gcc-$(GCC_VERSION)/configure --prefix=$(CROSSTOOLS) \
 		--build=$(HOST) --host=$(HOST) --target=$(TARGET) \
+		-with-fp=no --with-headers=$(CLFS)/usr/include \
 		--disable-multilib --with-sysroot=$(CLFS) --disable-nls \
 		--enable-languages=c,c++ --enable-__cxa_atexit \
 		--with-mpfr=$(CROSSTOOLS) --with-gmp=$(CROSSTOOLS) \
