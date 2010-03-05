@@ -258,7 +258,7 @@ $(WORK)/build-test/hello: $(WORK)/build-test/hello.c
 		unset CFLAGS && unset CXXFLAGS && unset CC && \
 		AR=ar LDFLAGS="-Wl,-rpath,$(CROSSTOOLS)/lib" \
 		$(TARGET)-gcc -Wall -o hello hello.c
-	[ "$$(file -b $(WORK)/build-test/hello | cut -d',' -f2 | sed 's| ||g' )" == "ARM"  ] || exit 1
+	[ "`file -b $(WORK)/build-test/hello | cut -d',' -f2 | sed 's| ||g'`" = "ARM"  ] || exit 1
 	touch $(WORK)/build-test/hello
 
 test: gcc-final $(WORK)/build-test/hello
