@@ -243,28 +243,18 @@ gcc-final-distclean: gcc-final-clean
 
 
 # TEST THE TOOLCHAIN
-$(WORK)/build-test:
-	mkdir -p $(WORK)/build-test
-	touch $(WORK)/build-test
+$(WORK)/test: $(WORK)/test.c
+	export PATH=$$PATH:$(CROSSTOOLS)/bin
+	unset CFLAGS && unset CXXFLAGS && unset CC
+	AR=ar LDFLAGS="-Wl,-rpath,$(CROSSTOOLS)/lib" \
+	$(TARGET)-gcc -Wall -o test $(WORK)/test.c
+	[ "`file -b $(WORK)/test | cut -d',' -f2 | sed 's| ||g'`" = "ARM"  ] || exit 1
+	touch $(WORK)/test
 
-$(WORK)/build-test/hello.c: $(WORK)/build-test
-	echo '#include <stdio.h>' > $(WORK)/build-test/hello.c
-	echo 'int main(int argc,char ** argv){printf("Hello World!\n");return 0;}' >> $(WORK)/build-test/hello.c
-	touch $(WORK)/build-test/hello.c
-
-$(WORK)/build-test/hello: $(WORK)/build-test/hello.c
-	cd $(WORK)/build-test && \
-		export PATH=$$PATH:$(CROSSTOOLS)/bin && \
-		unset CFLAGS && unset CXXFLAGS && unset CC && \
-		AR=ar LDFLAGS="-Wl,-rpath,$(CROSSTOOLS)/lib" \
-		$(TARGET)-gcc -Wall -o hello hello.c
-	[ "`file -b $(WORK)/build-test/hello | cut -d',' -f2 | sed 's| ||g'`" = "ARM"  ] || exit 1
-	touch $(WORK)/build-test/hello
-
-test: gcc-final $(WORK)/build-test/hello
+test: gcc-final $(WORK)/test
 
 test-clean:
-	rm -vrf $(WORK)/build-test
+	rm -vrf $(WORK)/test
 
 test-distclean: test-clean
 
