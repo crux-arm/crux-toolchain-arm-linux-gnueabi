@@ -244,8 +244,8 @@ gcc-final-distclean: gcc-final-clean
 
 # TEST THE TOOLCHAIN
 $(WORK)/test: $(WORK)/test.c
-	export PATH=$$PATH:$(CROSSTOOLS)/bin
-	unset CFLAGS && unset CXXFLAGS && unset CC
+	export PATH=$$PATH:$(CROSSTOOLS)/bin && \
+	unset CFLAGS && unset CXXFLAGS && unset CC && \
 	AR=ar LDFLAGS="-Wl,-rpath,$(CROSSTOOLS)/lib" \
 	$(TARGET)-gcc -Wall -o test $(WORK)/test.c
 	[ "`file -b $(WORK)/test | cut -d',' -f2 | sed 's| ||g'`" = "ARM"  ] || exit 1
