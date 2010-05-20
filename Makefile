@@ -104,6 +104,7 @@ $(WORK)/binutils-$(BINUTILS_VERSION): $(WORK)/binutils-$(BINUTILS_VERSION).tar.b
 	tar -C $(WORK) -xvjf $(WORK)/binutils-$(BINUTILS_VERSION).tar.bz2
 	cd $(WORK)/binutils-$(BINUTILS_VERSION) && \
 		patch -p1 -i $(WORK)/binutils-$(BINUTILS_VERSION)-branch_update-5.patch
+	sed -i '/^SUBDIRS/s/doc//' $(WORK)/binutils-$(BINUTILS_VERSION)/*/Makefile.in
 	touch $(WORK)/binutils-$(BINUTILS_VERSION)
 
 $(WORK)/build-binutils: $(WORK)/binutils-$(BINUTILS_VERSION)
