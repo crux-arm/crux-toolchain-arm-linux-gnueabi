@@ -225,7 +225,7 @@ $(CLFS)/lib/gcc: $(WORK)/build-gcc-final $(WORK)/gcc-$(GCC_VERSION)
 		AR=ar LDFLAGS="-Wl,-rpath,$(CROSSTOOLS)/lib" \
 		$(WORK)/gcc-$(GCC_VERSION)/configure --prefix=$(CROSSTOOLS) \
 		--build=$(HOST) --host=$(HOST) --target=$(TARGET) \
-		-with-fp=no --with-headers=$(CLFS)/usr/include \
+		--with-fp=no --with-headers=$(CLFS)/usr/include \
 		--disable-multilib --with-sysroot=$(CLFS) --disable-nls \
 		--enable-languages=c,c++ --enable-__cxa_atexit \
 		--with-mpfr=$(CROSSTOOLS) --with-gmp=$(CROSSTOOLS) \
