@@ -69,7 +69,7 @@ libgmp-distclean: libgmp-clean
 
 # LIBMPFR
 $(WORK)/mpfr-$(LIBMPFR_VERSION).tar.bz2:
-	wget -P $(WORK) -c http://www.mpfr.org/mpfr-current/mpfr-$(LIBMPFR_VERSION).tar.bz2
+	wget -P $(WORK) -c http://ftp.gnu.org/gnu/mpfr/mpfr-$(LIBMPFR_VERSION).tar.bz2
 
 $(WORK)/mpfr-$(LIBMPFR_VERSION): $(WORK)/mpfr-$(LIBMPFR_VERSION).tar.bz2
 	tar -C $(WORK) -xvjf $(WORK)/mpfr-$(LIBMPFR_VERSION).tar.bz2
