@@ -6,11 +6,11 @@ include vars.mk
 
 .PHONY: all clean distclean
 
-all: linux-headers libgmp libmpfr binutils gcc-static glibc gcc-final test
+all: linux-headers libgmp libmpfr libmpc binutils gcc-static glibc gcc-final test
 
-clean: linux-headers-clean libgmp-clean libmpfr-clean binutils-clean gcc-static-clean glibc-clean gcc-final-clean test-clean
+clean: linux-headers-clean libgmp-clean libmpfr-clean libmpc-clean binutils-clean gcc-static-clean glibc-clean gcc-final-clean test-clean
 
-distclean: clean linux-headers-distclean libgmp-distclean libmpfr-distclean binutils-distclean gcc-static-distclean glibc-distclean gcc-final-distclean test-distclean
+distclean: clean linux-headers-distclean libgmp-distclean libmpfr-distclean libmpc-distclean binutils-distclean gcc-static-distclean glibc-distclean gcc-final-distclean test-distclean
 
 
 # LINUX HEADERS
@@ -96,14 +96,42 @@ libmpfr-distclean: libmpfr-clean
 	rm -vrf $(WORK)/mpfr-$(LIBMPFR_VERSION).tar.bz2
 
 
+# LIBMPC
+$(WORK)/mpc-$(LIBMPC_VERSION).tar.gz:
+	wget -P $(WORK) -c http://www.multiprecision.org/mpc/download/mpc-$(LIBMPC_VERSION).tar.gz
+
+$(WORK)/mpc-$(LIBMPC_VERSION): $(WORK)/mpc-$(LIBMPC_VERSION).tar.gz
+	tar -C $(WORK) -xvzf $(WORK)/mpc-$(LIBMPC_VERSION).tar.gz
+	touch $(WORK)/mpc-$(LIBMPC_VERSION)
+
+$(WORK)/build-libmpc: $(WORK)/mpc-$(LIBMPC_VERSION)
+	mkdir -p $(WORK)/build-libmpc
+	touch $(WORK)/build-libmpc
+
+$(CROSSTOOLS)/lib/libmpc.so: $(WORK)/build-libmpc
+	cd $(WORK)/build-libmpc && \
+		unset CFLAGS && unset CXXFLAGS && \
+		LDFLAGS="-Wl,-rpath,$(CROSSTOOLS)/lib" && \
+		$(WORK)/mpc-$(LIBMPC_VERSION)/configure --prefix=$(CROSSTOOLS) \
+		--enable-shared --with-gmp=$(CROSSTOOLS) --with-mpfr=$(CROSSTOOLS) && \
+		make && make install || exit 1
+	touch $(CROSSTOOLS)/lib/libmpc.so
+
+libmpc: $(CROSSTOOLS)/lib/libmpc.so
+
+libmpc-clean:
+	rm -vrf $(WORK)/build-libmpc $(WORK)/mpc-$(LIBMPC_VERSION)
+
+libmpc-distclean: libmpc-clean
+	rm -vrf $(WORK)/mpc-$(LIBMPC_VERSION).tar.bz2
+
+
 # BINUTILS
 $(WORK)/binutils-$(BINUTILS_VERSION).tar.bz2:
 	wget -P $(WORK) -c ftp://ftp.gnu.org/gnu/binutils/binutils-$(BINUTILS_VERSION).tar.bz2
 
-$(WORK)/binutils-$(BINUTILS_VERSION): $(WORK)/binutils-$(BINUTILS_VERSION).tar.bz2 $(WORK)/binutils-$(BINUTILS_VERSION)-branch_update-5.patch
+$(WORK)/binutils-$(BINUTILS_VERSION): $(WORK)/binutils-$(BINUTILS_VERSION).tar.bz2
 	tar -C $(WORK) -xvjf $(WORK)/binutils-$(BINUTILS_VERSION).tar.bz2
-	cd $(WORK)/binutils-$(BINUTILS_VERSION) && \
-		patch -p1 -i $(WORK)/binutils-$(BINUTILS_VERSION)-branch_update-5.patch
 	sed -i '/^SUBDIRS/s/doc//' $(WORK)/binutils-$(BINUTILS_VERSION)/*/Makefile.in
 	touch $(WORK)/binutils-$(BINUTILS_VERSION)
 
@@ -153,7 +181,7 @@ $(CROSSTOOLS)/lib/gcc: $(WORK)/build-gcc-static $(WORK)/gcc-$(GCC_VERSION)
 		--without-headers --enable-__cxa_atexit --enable-symvers=gnu --disable-decimal-float \
 		--nfp --without-fp --with-softfloat-support=internal \
 		--disable-libgomp --disable-libmudflap --disable-libssp \
-		--with-mpfr=$(CROSSTOOLS) --with-gmp=$(CROSSTOOLS) \
+		--with-mpfr=$(CROSSTOOLS) --with-gmp=$(CROSSTOOLS) --with-mpc=${CROSSTOOLS} \
 		--disable-shared --disable-threads --enable-languages=c && \
 		make && make install || exit 1
 	touch $(CROSSTOOLS)/lib/gcc
@@ -172,13 +200,14 @@ $(WORK)/glibc-$(GLIBC_VERSION).tar.bz2:
 	wget -P $(WORK) -c ftp://ftp.gnu.org/gnu/glibc/glibc-$(GLIBC_VERSION).tar.bz2
 
 $(WORK)/glibc-ports-$(GLIBC_VERSION).tar.bz2:
-	wget -P $(WORK) -c ftp://ftp.gnu.org/gnu/glibc/glibc-ports-$(GLIBC_VERSION).tar.bz2
-$(WORK)/glibc-$(GLIBC_VERSION): $(WORK)/glibc-$(GLIBC_VERSION).tar.bz2 $(WORK)/glibc-ports-$(GLIBC_VERSION).tar.bz2
+	wget -P $(WORK) -c ftp://ftp.gnu.org/gnu/glibc/glibc-ports-$(GLIBC_PORTS_VERSION).tar.bz2
 
+$(WORK)/glibc-$(GLIBC_VERSION): $(WORK)/glibc-$(GLIBC_VERSION).tar.bz2 $(WORK)/glibc-ports-$(GLIBC_PORTS_VERSION).tar.bz2 $(WORK)/glibc-$(GLIBC_VERSION)-pot.patch
 	tar -C $(WORK) -xvjf $(WORK)/glibc-$(GLIBC_VERSION).tar.bz2
 	cd $(WORK)/glibc-$(GLIBC_VERSION) && \
-		tar xvjf $(WORK)/glibc-ports-$(GLIBC_VERSION).tar.bz2 && \
-		mv glibc-ports-$(GLIBC_VERSION) ports && \
+		tar xvjf $(WORK)/glibc-ports-$(GLIBC_PORTS_VERSION).tar.bz2 && \
+		patch -p0 -i $(WORK)/glibc-$(GLIBC_VERSION)-pot.patch && \
+		mv glibc-ports-$(GLIBC_PORTS_VERSION) ports && \
 		sed -e 's/-lgcc_eh//g' -i Makeconfig
 	touch $(WORK)/glibc-$(GLIBC_VERSION)
 
@@ -228,7 +257,7 @@ $(CLFS)/lib/gcc: $(WORK)/build-gcc-final $(WORK)/gcc-$(GCC_VERSION)
 		--with-fp=no --with-headers=$(CLFS)/usr/include \
 		--disable-multilib --with-sysroot=$(CLFS) --disable-nls \
 		--enable-languages=c,c++ --enable-__cxa_atexit \
-		--with-mpfr=$(CROSSTOOLS) --with-gmp=$(CROSSTOOLS) \
+		--with-mpfr=$(CROSSTOOLS) --with-gmp=$(CROSSTOOLS) --with-mpc=$(CROSSTOOLS) \
 		--enable-c99 --enable-long-long --enable-threads=posix && \
 		make AS_FOR_TARGET="$(TARGET)-as" LD_FOR_TARGET="$(TARGET)-ld" && \
 		make install || exit 1
