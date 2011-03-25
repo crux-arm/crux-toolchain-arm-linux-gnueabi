@@ -206,7 +206,7 @@ $(WORK)/glibc-$(GLIBC_VERSION): $(WORK)/glibc-$(GLIBC_VERSION).tar.bz2 $(WORK)/g
 	tar -C $(WORK) -xvjf $(WORK)/glibc-$(GLIBC_VERSION).tar.bz2
 	cd $(WORK)/glibc-$(GLIBC_VERSION) && \
 		tar xvjf $(WORK)/glibc-ports-$(GLIBC_PORTS_VERSION).tar.bz2 && \
-		patch -p0 -i $(WORK)/glibc-$(GLIBC_VERSION)-pot.patch && \
+		patch -p1 -i $(WORK)/glibc-$(GLIBC_VERSION)-pot.patch && \
 		mv glibc-ports-$(GLIBC_PORTS_VERSION) ports && \
 		sed -e 's/-lgcc_eh//g' -i Makeconfig
 	touch $(WORK)/glibc-$(GLIBC_VERSION)
