@@ -181,7 +181,7 @@ $(CROSSTOOLS)/lib/gcc: $(WORK)/build-gcc-static $(WORK)/gcc-$(GCC_VERSION)
 		--without-headers --enable-__cxa_atexit --enable-symvers=gnu --disable-decimal-float \
 		--nfp --without-fp --with-softfloat-support=internal \
 		--disable-libgomp --disable-libmudflap --disable-libssp \
-		--with-mpfr=$(CROSSTOOLS) --with-gmp=$(CROSSTOOLS) --with-mpc=${CROSSTOOLS} \
+		--with-mpfr=$(CROSSTOOLS) --with-gmp=$(CROSSTOOLS) --with-mpc=$(CROSSTOOLS) \
 		--disable-shared --disable-threads --enable-languages=c && \
 		make && make install || exit 1
 	touch $(CROSSTOOLS)/lib/gcc
@@ -200,14 +200,14 @@ $(WORK)/glibc-$(GLIBC_VERSION).tar.bz2:
 	wget -P $(WORK) -c ftp://ftp.gnu.org/gnu/glibc/glibc-$(GLIBC_VERSION).tar.bz2
 
 $(WORK)/glibc-ports-$(GLIBC_VERSION).tar.bz2:
-	wget -P $(WORK) -c ftp://ftp.gnu.org/gnu/glibc/glibc-ports-$(GLIBC_PORTS_VERSION).tar.bz2
+	wget -P $(WORK) -c ftp://ftp.gnu.org/gnu/glibc/glibc-ports-$(GLIBC_VERSION).tar.bz2
 
-$(WORK)/glibc-$(GLIBC_VERSION): $(WORK)/glibc-$(GLIBC_VERSION).tar.bz2 $(WORK)/glibc-ports-$(GLIBC_PORTS_VERSION).tar.bz2 $(WORK)/glibc-$(GLIBC_VERSION)-pot.patch
+$(WORK)/glibc-$(GLIBC_VERSION): $(WORK)/glibc-$(GLIBC_VERSION).tar.bz2 $(WORK)/glibc-ports-$(GLIBC_VERSION).tar.bz2 $(WORK)/glibc-$(GLIBC_VERSION)-pot.patch
 	tar -C $(WORK) -xvjf $(WORK)/glibc-$(GLIBC_VERSION).tar.bz2
 	cd $(WORK)/glibc-$(GLIBC_VERSION) && \
-		tar xvjf $(WORK)/glibc-ports-$(GLIBC_PORTS_VERSION).tar.bz2 && \
+		tar xvjf $(WORK)/glibc-ports-$(GLIBC_VERSION).tar.bz2 && \
 		patch -p1 -i $(WORK)/glibc-$(GLIBC_VERSION)-pot.patch && \
-		mv glibc-ports-$(GLIBC_PORTS_VERSION) ports && \
+		mv glibc-ports-$(GLIBC_VERSION) ports && \
 		sed -e 's/-lgcc_eh//g' -i Makeconfig
 	touch $(WORK)/glibc-$(GLIBC_VERSION)
 
