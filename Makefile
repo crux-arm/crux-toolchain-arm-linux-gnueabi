@@ -6,7 +6,7 @@ include vars.mk
 
 .PHONY: all clean distclean
 
-all: linux-headers libgmp libmpfr libmpc binutils gcc-static glibc gcc-final test
+all: linux-headers libgmp libmpfr libmpc binutils gcc-static glibc gcc-final setup test
 
 clean: linux-headers-clean libgmp-clean libmpfr-clean libmpc-clean binutils-clean gcc-static-clean glibc-clean gcc-final-clean test-clean
 
@@ -271,6 +271,13 @@ gcc-final-clean:
 gcc-final-distclean: gcc-final-clean
 	rm -vf $(WORK)/gcc-$(GCC_VERSION).tar.bz2
 
+
+# SETUP FOR PKGUTILS
+$(CLFS)/var/lib/pkg/db:
+	install -d -m 0755 $(CLFS)/var/lib/pkg
+	touch $(CLFS)/var/lib/pkg/db
+
+setup: $(CLFS)/var/lib/pkg/db
 
 # TEST THE TOOLCHAIN
 $(WORK)/test: $(WORK)/test.c
