@@ -71,8 +71,10 @@ libgmp-distclean: libgmp-clean
 $(WORK)/mpfr-$(LIBMPFR_VERSION).tar.bz2:
 	wget -P $(WORK) -c http://ftp.gnu.org/gnu/mpfr/mpfr-$(LIBMPFR_VERSION).tar.bz2
 
-$(WORK)/mpfr-$(LIBMPFR_VERSION): $(WORK)/mpfr-$(LIBMPFR_VERSION).tar.bz2
+$(WORK)/mpfr-$(LIBMPFR_VERSION): $(WORK)/mpfr-$(LIBMPFR_VERSION).tar.bz2 $(WORK)/libmpfr-3.1.1-p2.patch.gz
 	tar -C $(WORK) -xvjf $(WORK)/mpfr-$(LIBMPFR_VERSION).tar.bz2
+	cd $(WORK)/mpfr-$(LIBMPFR_VERSION) && \
+		gunzip -c $(WORK)/libmpfr-$(LIBMPFR_VERSION)-p2.patch.gz | patch -p1
 	touch $(WORK)/mpfr-$(LIBMPFR_VERSION)
 
 $(WORK)/build-libmpfr: $(WORK)/mpfr-$(LIBMPFR_VERSION)
@@ -182,7 +184,7 @@ $(CROSSTOOLS)/lib/gcc: $(WORK)/build-gcc-static $(WORK)/gcc-$(GCC_VERSION)
 		--nfp --without-fp --with-softfloat-support=internal \
 		--disable-libgomp --disable-libmudflap --disable-libssp \
 		--with-mpfr=$(CROSSTOOLS) --with-gmp=$(CROSSTOOLS) --with-mpc=$(CROSSTOOLS) \
-		--disable-shared --disable-threads --enable-languages=c && \
+		--disable-shared --disable-threads --enable-languages=c --disable-libquadmath && \
 		make && make install || exit 1
 	touch $(CROSSTOOLS)/lib/gcc
 
@@ -202,13 +204,12 @@ $(WORK)/glibc-$(GLIBC_VERSION).tar.bz2:
 $(WORK)/glibc-ports-$(GLIBC_VERSION).tar.bz2:
 	wget -P $(WORK) -c ftp://ftp.gnu.org/gnu/glibc/glibc-ports-$(GLIBC_VERSION).tar.bz2
 
-$(WORK)/glibc-$(GLIBC_VERSION): $(WORK)/glibc-$(GLIBC_VERSION).tar.bz2 $(WORK)/glibc-ports-$(GLIBC_VERSION).tar.bz2 $(WORK)/glibc-$(GLIBC_VERSION)-pot.patch
+$(WORK)/glibc-$(GLIBC_VERSION): $(WORK)/glibc-$(GLIBC_VERSION).tar.bz2 $(WORK)/glibc-ports-$(GLIBC_VERSION).tar.bz2 
 	tar -C $(WORK) -xvjf $(WORK)/glibc-$(GLIBC_VERSION).tar.bz2
 	cd $(WORK)/glibc-$(GLIBC_VERSION) && \
 		tar xvjf $(WORK)/glibc-ports-$(GLIBC_VERSION).tar.bz2 && \
-		patch -p1 -i $(WORK)/glibc-$(GLIBC_VERSION)-pot.patch && \
 		mv glibc-ports-$(GLIBC_VERSION) ports && \
-		sed -e 's/-lgcc_eh//g' -i Makeconfig
+		sed -e 's/-lgcc_eh//g' -e 's/-lgcc_s//g' -i Makeconfig
 	touch $(WORK)/glibc-$(GLIBC_VERSION)
 
 $(WORK)/build-glibc: $(WORK)/glibc-$(GLIBC_VERSION)
@@ -221,6 +222,7 @@ $(CLFS)/usr/lib/libc.so: $(WORK)/build-glibc $(WORK)/glibc-$(GLIBC_VERSION)
 		echo "libc_cv_forced_unwind=yes" > config.cache && \
 		echo "libc_cv_c_cleanup=yes" >> config.cache && \
 		echo "libc_cv_gnu89_inline=yes" >> config.cache && \
+		echo "libc_cv_ctors_header=yes" >> config.cache && \
 		echo "install_root=$(CLFS)" > configparms && \
 		unset CFLAGS && unset CXXFLAGS && \
 		BUILD_CC="gcc" CC="$(TARGET)-gcc" AR="$(TARGET)-ar" \
@@ -258,7 +260,7 @@ $(CLFS)/lib/gcc: $(WORK)/build-gcc-final $(WORK)/gcc-$(GCC_VERSION)
 		--disable-multilib --with-sysroot=$(CLFS) --disable-nls \
 		--enable-languages=c,c++ --enable-__cxa_atexit \
 		--with-mpfr=$(CROSSTOOLS) --with-gmp=$(CROSSTOOLS) --with-mpc=$(CROSSTOOLS) \
-		--enable-c99 --enable-long-long --enable-threads=posix && \
+		--enable-threads=posix --disable-libstdcxx-pch --disable-bootstrap --disable-libgomp && \
 		make AS_FOR_TARGET="$(TARGET)-as" LD_FOR_TARGET="$(TARGET)-ld" && \
 		make install || exit 1
 	touch $(CLFS)/lib/gcc
