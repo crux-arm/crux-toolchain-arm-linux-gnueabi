@@ -15,7 +15,7 @@ distclean: clean linux-headers-distclean libgmp-distclean libmpfr-distclean libm
 
 # LINUX HEADERS
 $(WORK)/linux-$(KERNEL_HEADERS_VERSION).tar.bz2:
-	wget -P $(WORK) -c ftp://ftp.kernel.org/pub/linux/kernel/v2.6/linux-$(KERNEL_HEADERS_VERSION).tar.bz2
+	wget -P $(WORK) -c ftp://ftp.kernel.org/pub/linux/kernel/v3.0/linux-$(KERNEL_HEADERS_VERSION).tar.bz2
 
 $(WORK)/linux-$(KERNEL_HEADERS_VERSION): $(WORK)/linux-$(KERNEL_HEADERS_VERSION).tar.bz2
 	tar -C $(WORK) -xvjf $(WORK)/linux-$(KERNEL_HEADERS_VERSION).tar.bz2
