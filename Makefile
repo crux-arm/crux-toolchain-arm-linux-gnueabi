@@ -205,6 +205,7 @@ $(WORK)/glibc-ports-$(GLIBC_VERSION).tar.bz2:
 $(WORK)/glibc-$(GLIBC_VERSION): $(WORK)/glibc-$(GLIBC_VERSION).tar.bz2 $(WORK)/glibc-ports-$(GLIBC_VERSION).tar.bz2 $(WORK)/glibc-$(GLIBC_VERSION)-pot.patch
 	tar -C $(WORK) -xvjf $(WORK)/glibc-$(GLIBC_VERSION).tar.bz2
 	cd $(WORK)/glibc-$(GLIBC_VERSION) && \
+		patch -p1 -i $(WORK)/glibc-$(GLIBC_VERSION)-make382.patch && \
 		tar xvjf $(WORK)/glibc-ports-$(GLIBC_VERSION).tar.bz2 && \
 		patch -p1 -i $(WORK)/glibc-$(GLIBC_VERSION)-pot.patch && \
 		mv glibc-ports-$(GLIBC_VERSION) ports && \
