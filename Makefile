@@ -15,7 +15,7 @@ distclean: clean linux-headers-distclean libgmp-distclean libmpfr-distclean libm
 
 # LINUX HEADERS
 $(WORK)/linux-$(KERNEL_HEADERS_VERSION).tar.bz2:
-	wget -P $(WORK) -c ftp://ftp.kernel.org/pub/linux/kernel/v3.0/linux-$(KERNEL_HEADERS_VERSION).tar.bz2
+	wget -P $(WORK) -c https://mirrors.edge.kernel.org/pub/linux/kernel/v3.0/linux-$(KERNEL_HEADERS_VERSION).tar.bz2
 
 $(WORK)/linux-$(KERNEL_HEADERS_VERSION): $(WORK)/linux-$(KERNEL_HEADERS_VERSION).tar.bz2
 	tar -C $(WORK) -xvjf $(WORK)/linux-$(KERNEL_HEADERS_VERSION).tar.bz2
@@ -100,7 +100,7 @@ libmpfr-distclean: libmpfr-clean
 
 # LIBMPC
 $(WORK)/mpc-$(LIBMPC_VERSION).tar.gz:
-	wget -P $(WORK) -c http://www.multiprecision.org/mpc/download/mpc-$(LIBMPC_VERSION).tar.gz
+	wget -P $(WORK) -c https://ftp.gnu.org/gnu/mpc/mpc-$(LIBMPC_VERSION).tar.gz
 
 $(WORK)/mpc-$(LIBMPC_VERSION): $(WORK)/mpc-$(LIBMPC_VERSION).tar.gz
 	tar -C $(WORK) -xvzf $(WORK)/mpc-$(LIBMPC_VERSION).tar.gz
@@ -163,7 +163,7 @@ binutils-distclean: binutils-clean
 
 # GCC-STATIC
 $(WORK)/gcc-$(GCC_VERSION).tar.bz2:
-	wget -P $(WORK) -c ftp://sources.redhat.com/pub/gcc/releases/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.bz2
+	wget -P $(WORK) -c https://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.bz2
 
 $(WORK)/gcc-$(GCC_VERSION): $(WORK)/gcc-$(GCC_VERSION).tar.bz2
 	tar -C $(WORK) -xvjf $(WORK)/gcc-$(GCC_VERSION).tar.bz2
